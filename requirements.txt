@@ -2,6 +2,5 @@ Flask==2.3.2
 opentelemetry-api==1.13.0
 opentelemetry-sdk==1.13.0
 opentelemetry-exporter-otlp==1.13.0
-opentelemetry-instrumentation-flask==0.39b0
-opentelemetry-instrumentation-requests==0.39b0
-
+opentelemetry-instrumentation-flask
+opentelemetry-instrumentation-requests
