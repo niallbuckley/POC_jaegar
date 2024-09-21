@@ -4,3 +4,4 @@ opentelemetry-sdk==1.13.0
 opentelemetry-exporter-otlp==1.13.0
 opentelemetry-instrumentation-flask
 opentelemetry-instrumentation-requests
+opentelemetry-exporter-jaeger
