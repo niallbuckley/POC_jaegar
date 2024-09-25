@@ -1,0 +1,159 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: jaeger-collector
+#   namespace: jaeger-namespace
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: jaeger-collector
+#   template:
+#     metadata:
+#       labels:
+#         app: jaeger-collector
+#     spec:
+#       containers:
+#       - name: jaeger-collector
+#         image: jaegertracing/jaeger-collector:1.40
+#         ports:
+#         - containerPort: 14268
+#         - containerPort: 14250
+#         env:
+#           - name: COLLECTOR_ZIPKIN_HTTP_PORT
+#             value: "9411"
+#         args: [
+#           "--cassandra.servers=cassandra:9042",
+#           "--cassandra.keyspace=jaeger_v1_test"
+#         ]
+
+# Source: jaeger/templates/collector-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jaeger-collector
+  labels:
+    helm.sh/chart: jaeger-3.3.1
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "1.53.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: collector
+automountServiceAccountToken: false
+---
+# Source: jaeger/templates/collector-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-collector
+  labels:
+    helm.sh/chart: jaeger-3.3.1
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "1.53.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: collector
+spec:
+  ports:
+  - name: grpc
+    port: 14250
+    protocol: TCP
+    targetPort: grpc
+    appProtocol: grpc
+  - name: http
+    port: 14268
+    protocol: TCP
+    targetPort: http
+    appProtocol: http
+  - name: admin
+    port: 14269
+    targetPort: admin
+  selector:
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/component: collector
+  type: ClusterIP
+---
+# Source: jaeger/templates/collector-deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger-collector
+  labels:
+    helm.sh/chart: jaeger-3.3.1
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "1.53.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: jaeger
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/component: collector
+  template:
+    metadata:
+      annotations:
+        checksum/config-env: 75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070
+      labels:
+        app.kubernetes.io/name: jaeger
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/component: collector
+    spec:
+      securityContext:
+        {}
+      serviceAccountName: jaeger-collector
+      
+      containers:
+      - name: jaeger-collector
+        securityContext:
+          {}
+        image: jaegertracing/jaeger-collector:1.53.0
+        imagePullPolicy: IfNotPresent
+        args:
+          
+          
+          
+        env:
+          - name: SPAN_STORAGE_TYPE
+            value: cassandra
+          - name: CASSANDRA_SERVERS
+            value: cassandra
+          - name: CASSANDRA_PORT
+            value: "9042"
+          
+          - name: CASSANDRA_KEYSPACE
+            value: jaeger_v1_test
+          - name: CASSANDRA_USERNAME
+            value: cassandra
+          - name: CASSANDRA_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cassandra
+                key: cassandra-password
+        ports:
+        - containerPort: 14250
+          name: grpc
+          protocol: TCP
+        - containerPort: 14268
+          name: http
+          protocol: TCP
+        - containerPort: 14269
+          name: admin
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /
+            port: admin
+        livenessProbe:
+          httpGet:
+            path: /
+            port: admin
+        resources:
+          {}
+        volumeMounts:
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      volumes:
