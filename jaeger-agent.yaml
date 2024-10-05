@@ -119,9 +119,7 @@ spec:
           
         env:
           - name: REPORTER_GRPC_HOST_PORT
-            value: jaeger-collector:14250
-          - name: LOGLEVEL
-            value: debug
+            value: release-name-jaeger-collector:14250
         ports:
         - name: zipkin-compact
           containerPort: 5775
