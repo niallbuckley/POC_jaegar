@@ -11,8 +11,8 @@ tracer = trace.get_tracer(__name__)
 
 # Configure the Jaeger exporter (sending to the Jaeger agent)
 jaeger_exporter = JaegerExporter(
-    agent_host_name="jaeger",  # Replace with the correct Jaeger agent hostname/IP
-    agent_port=6831,              # Default UDP port for Jaeger agent
+    agent_host_name="10.97.174.19",  # Replace with the correct Jaeger agent hostname/IP
+    agent_port=5775,              # Default UDP port for Jaeger agent
 )
 
 # Add the exporter to a span processor
