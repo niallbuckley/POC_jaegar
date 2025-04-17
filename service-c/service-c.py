@@ -4,6 +4,7 @@ from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from prometheus_flask_exporter import PrometheusMetrics
 
 # Initialize tracing
 trace.set_tracer_provider(TracerProvider())
@@ -11,7 +12,7 @@ tracer = trace.get_tracer(__name__)
 
 # Configure the Jaeger exporter (sending to the Jaeger agent)
 jaeger_exporter = JaegerExporter(
-    agent_host_name="10.97.174.19",  # Replace with the correct Jaeger agent hostname/IP
+    agent_host_name="10.10.170.128",  # Replace with the correct Jaeger agent hostname/IP
     agent_port=5775,              # Default UDP port for Jaeger agent
 )
 
@@ -21,7 +22,10 @@ trace.get_tracer_provider().add_span_processor(span_processor)
 
 # Create the Flask application
 app = Flask(__name__)
+metrics = PrometheusMetrics(app) 
 FlaskInstrumentor().instrument_app(app)
+
+metrics.info('app_info', 'Application info', version='1.0.0')
 
 @app.route('/service-c')
 def index():
@@ -38,4 +42,3 @@ def another_route():
 if __name__ == '__main__':
     # Run the Flask app on localhost, port 5000
     app.run(host='0.0.0.0', port=5000)
-

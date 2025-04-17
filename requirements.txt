@@ -5,3 +5,4 @@ opentelemetry-exporter-otlp==1.13.0
 opentelemetry-instrumentation-flask
 opentelemetry-instrumentation-requests
 opentelemetry-exporter-jaeger
+prometheus_flask_exporter==0.23.2
