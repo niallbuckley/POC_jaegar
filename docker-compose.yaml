@@ -31,4 +31,17 @@ services:
       - "16686:16686"
       - "14268:14268"
       - "9411:9411"
+  vmagent:
+    image: victoriametrics/vmagent
+    command:
+      - '-promscrape.config=/etc/vmagent/scrape.yml'
+      - '-remoteWrite.url=http://victoria-metrics:8428/api/v1/write'
+    volumes:
+      - ./scrape.yml:/etc/vmagent/scrape.yml
+    ports:
+      - "8429:8429"
 
+  victoria-metrics:
+    image: victoriametrics/victoria-metrics
+    ports:
+      - "8428:8428"
